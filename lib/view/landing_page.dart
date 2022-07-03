@@ -16,7 +16,6 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     init = initialise();
   }
@@ -34,13 +33,6 @@ class _LandingPageState extends State<LandingPage> {
 
     classes = List<TeachingClass>.from(
         l.map((model) => TeachingClass.fromJson(model)));
-
-    controller = VideoPlayerController.network(
-        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4')
-      ..initialize().then((_) {
-        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-        setState(() {});
-      });
   }
 
   @override
@@ -92,7 +84,7 @@ class _LandingPageState extends State<LandingPage> {
                       controller!.setVolume(0);
                       controller!.play();
                     }
-
+                    bool muted = true;
                     return Container(
                         decoration: const BoxDecoration(),
                         height: 250.0,
@@ -111,32 +103,76 @@ class _LandingPageState extends State<LandingPage> {
                                         //height: 250,
                                         child: Column(
                                           children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Align(
-                                                alignment: Alignment.topRight,
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      color: Colors.grey[600]!
-                                                          .withOpacity(0.5)),
-                                                  child: Text(
-                                                    "${controller!.value.position.inMicroseconds}:${controller!.value.position.inSeconds}",
-                                                    style: const TextStyle(
-                                                        color: Colors.white),
-                                                  ),
+                                            Align(
+                                              alignment: Alignment.topRight,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: ValueListenableBuilder(
+                                                  valueListenable: controller!,
+                                                  builder: (context,
+                                                      VideoPlayerValue value,
+                                                      child) {
+                                                    Duration remaining =
+                                                        value.duration -
+                                                            value.position;
+                                                    int hours =
+                                                        remaining.inHours;
+                                                    int minutes = remaining
+                                                            .inMinutes -
+                                                        hours *
+                                                            Duration
+                                                                .minutesPerHour;
+                                                    int seconds = remaining
+                                                            .inSeconds -
+                                                        hours *
+                                                            Duration
+                                                                .secondsPerHour -
+                                                        minutes *
+                                                            Duration
+                                                                .secondsPerMinute;
+                                                    String remTimeString;
+                                                    if (hours > 0) {
+                                                      remTimeString =
+                                                          '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+                                                    } else {
+                                                      remTimeString =
+                                                          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+                                                    }
+                                                    return Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black
+                                                            .withOpacity(0.3),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 4.0,
+                                                          vertical: 2.0,
+                                                        ),
+                                                        child: Text(
+                                                          remTimeString,
+                                                          style: TextStyle(
+                                                            color: Colors.white
+                                                                .withOpacity(
+                                                                    0.75),
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
                                               ),
                                             ),
                                             controller!.value.volume == 0
                                                 ? Align(
                                                     alignment:
-                                                        Alignment.bottomLeft,
+                                                        Alignment.topLeft,
                                                     child: IconButton(
                                                       icon: const Icon(
                                                           Icons.volume_off),
